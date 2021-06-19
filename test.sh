@@ -1,1 +1,1 @@
-gcc -o test.out main.c && ./test.out
+gcc -o test.out main.c -lm && ./test.out

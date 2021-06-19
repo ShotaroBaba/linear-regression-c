@@ -1,11 +1,15 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <time.h>
+# include <math.h>
+
+// TODO: Create a library that allows
+// do the regression by inputting some data.
 
 // Define default values
-#define MAX_ARR_SIZE 500
-#define RAND_ERR_MIN -0.5
-#define RAND_ERR_MAX 0.5
+#define MAX_ARR_SIZE 100000
+#define RAND_ERR_MIN -33.5
+#define RAND_ERR_MAX 33.5
 #define NUM_VALUES 3
 #define MIN_a_RANGE 1
 #define MIN_b_RANGE 1
@@ -14,12 +18,18 @@
 //////////////////////////
 
 
-
+// Declaring functions ///////////
 double ** generate_random_data();
 double rand_double(double a, double b);
 double * create_array();
+double calculate_average(double *a);
+double calculate_uncorrelated_std(double *a, double a_avg);
+double calculate_sample_correlation_coefficient(double *a, double *b,
+double avg_x, double avg_y,
+double u_std_a, double u_std_b);
+//////////////////////////////////
 
-
+// Simple linear regression
 void main() {
     printf("This is the test program for simple linear regression\n.");
     // Genearete random array data.
@@ -34,17 +44,75 @@ void main() {
 
     printf("y=%fx+%f",a,b);
 
-    for(int i=0;i<MAX_ARR_SIZE;i++){
-        printf("%d: (%f,%f)\n", i+1,x[i],y[i]);
-    }
+    double avg_x=calculate_average(x);
+    double avg_y=calculate_average(y);
 
-    // Free all values
+    printf("avg_x: %f\n", avg_x);
+    printf("avg_y: %f\n", avg_y);
+
+    double u_std_x=calculate_uncorrelated_std(x,avg_x);
+    double u_std_y=calculate_uncorrelated_std(y,avg_y);
+
+    printf("uncorrelated standard deviation x: %f\n", u_std_x);
+    printf("uncorrelated standard deviation y: %f\n", u_std_y);
+
+    double s_cor_xy=calculate_sample_correlation_coefficient(x,y,
+    avg_x,avg_y,
+    u_std_x,u_std_y
+    );
+
+    double beta = s_cor_xy*u_std_y/u_std_x;
+    double alpha = avg_y - (avg_x*beta);
+    
+    printf("alpha: %f\n",alpha);
+    printf("beta: %f\n", beta);
+
+    printf("sample correlation coefficient y: %f", s_cor_xy);
+
+    // Free memory once all process has finished.
     for(int i=0;i<NUM_VALUES;i++){
         free(r[i]);
     }
 
     free(r);
 
+}
+
+double calculate_uncorrelated_std(double *a, double a_avg){
+
+    double total=0;
+
+    for(int i=0;i<MAX_ARR_SIZE;i++){
+        total+=pow((a[i] - a_avg),2)/MAX_ARR_SIZE;
+        // printf("Calc progress: %f\n",total);
+        // printf("a[%d]: %f, a[%d]-avg: %f\n", i, a[i],i, (a[i]-a_avg)/(double)MAX_ARR_SIZE);
+    }
+    
+    total=sqrt(total);
+
+    return total;
+}
+
+double calculate_sample_correlation_coefficient(double *a, double *b,
+double a_avg, double b_avg,
+double u_std_a, double u_std_b){
+    double total=0;
+
+    for (int i=0;i<MAX_ARR_SIZE;i++) {
+        total+=( (a[i]-a_avg)*(b[i]-b_avg) )/((MAX_ARR_SIZE-1)*u_std_a*u_std_b);
+    }
+
+    return total;
+}
+
+double calculate_average(double *a) {
+    
+    double total=0;
+    for(int i=0;i<MAX_ARR_SIZE;i++){
+        total+=a[i]/(double)MAX_ARR_SIZE;
+    }
+
+    return total;
 }
 
 double rand_double(double a, double b) {
@@ -79,7 +147,7 @@ double ** generate_random_data(){
 
     for(int i=0;i<MAX_ARR_SIZE;i++){
         x_rand=rand_double(0,8);
-        y_rand=a*x_rand+b+rand_double(0,RAND_ERR_MAX);
+        y_rand=a*x_rand+b+rand_double(RAND_ERR_MIN,RAND_ERR_MAX);
         x[i]=x_rand;
         y[i]=y_rand;
     }
