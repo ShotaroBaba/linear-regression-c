@@ -1,1 +1,3 @@
-gcc -o test.out main.c -lm && ./test.out
+#!/bin/bash
+
+gcc  -o test.out main.c -L ./lib -l m   && ./test.out
