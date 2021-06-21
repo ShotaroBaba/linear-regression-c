@@ -55,4 +55,4 @@ double ** generate_random_data(
     return k;
 }
 
-# endif
+# endif /* GENERATE_RANDOM_ARR */

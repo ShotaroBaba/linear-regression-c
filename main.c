@@ -39,6 +39,7 @@ int arrSize);
 
 // Simple linear regression
 void main() {
+    
     printf("This is the test program for simple linear regression\n.");
     // Genearete random array data.
     double ** r=generate_random_data(MIN_a_RANGE,
@@ -78,7 +79,7 @@ void main() {
     printf("alpha: %f\n",alpha);
     printf("beta: %f\n", beta);
 
-    printf("sample correlation coefficient y: %f", s_cor_xy);
+    printf("sample correlation coefficient y: %f\n", s_cor_xy);
 
     // Free memory once all process has finished.
     for(int i=0;i<NUM_VALUES;i++){
@@ -87,11 +88,41 @@ void main() {
 
     free(r);
 
-
+    int neural_arr_size=5;
     // Now creates data for simple neural network model: 
     // Input ==> Node ==> Output
-    double** arr_xy=create_sample_input(100);
-    double * arr_weight=create_random_weight(100);
+    double ** arr_xy=simple_create_sample_input(neural_arr_size);
+    
+    // double * arr_weight=simple_create_random_weight(neural_arr_size);
+    double w = -0.5;
+
+    double error_rate = simple_calculate_error(w, arr_xy[1],neural_arr_size);
+    
+    printf("Error rate: %f\n", error_rate);
+
+    double  d_err = simple_gradient_descent(w,arr_xy[0],arr_xy[1],neural_arr_size);
+    alpha=0.005;
+
+    int epoch_limit =100;
+    for(int epoch=0;epoch<epoch_limit;epoch++){
+
+        // Calculate error .
+        double  d_err = simple_gradient_descent(w,arr_xy[0],arr_xy[1],neural_arr_size);
+        
+        
+
+        // Update weight (back propagation).
+        w-=alpha*(d_err);
+        if(epoch%10==0){
+            printf("Epoch: %d\n", epoch);
+            printf("Recalculated error rate: %f\n",simple_calculate_error(w, arr_xy[1],neural_arr_size));
+            printf("d_err: %f\n", d_err);
+            printf("Calculated weight value: %f\n", w);
+        }
+        
+    }
+    
+    // The predicted function should be y = x/10+-0.1...
 
     free(arr_xy[0]);
     free(arr_xy[1]);
