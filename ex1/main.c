@@ -161,18 +161,19 @@ int main(int argc, char ** argv) {
     }
     
     if(user_input='3'){
-        int arr_length = 300;
+        int arr_length = 3000;
 
         double *** a = quadratic_create_sample_input(arr_length);
         double ** x = a[0];
         double * y = a[1][0];
-        double alpha = 0.00005;
+        double alpha = 0.55;
         double * w = quadratic_create_random_sample_weight();
 
-        // Set learning rate
-        double learning_rate = 0.0001;
-        int epoch_limit = 500;
-        printf("Initial Phase");
+
+        // Set learning rate    
+        double learning_rate = 0.15;
+        int epoch_limit = 1000;
+        printf("Initial Phase\n");
         printf("w[0]: %f\n",w[0]);
         printf("w[1]: %f\n",w[1]);
         printf("w[2]: %f\n",w[2]);
@@ -186,7 +187,10 @@ int main(int argc, char ** argv) {
                 w[i]+=alpha*(d_err_w[i]);
             }
 
-            if(epoch%10 == 0){
+            // The output is not enough to demostrate the values,
+            // so, it can be improved by adding hidden
+            // layer...
+            if(epoch%1000 == 0){
                 printf("epoch: %d\n", epoch);
                 printf("w[0]: %f\n",w[0]);
                 printf("w[1]: %f\n",w[1]);
