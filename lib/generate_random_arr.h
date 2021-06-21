@@ -4,6 +4,8 @@
 # include <stdlib.h>
 # include <time.h>
 
+double rand_double(double a, double b);
+
 double rand_double(double a, double b) {
     double random = ((double) rand()) / (double) RAND_MAX;
     double r = random * (b - a);
