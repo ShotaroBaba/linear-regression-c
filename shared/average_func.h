@@ -1,6 +1,7 @@
 # ifndef AVERAGE_FUNC
 # define AVERAGE_FUNC
 
+# include <math.h>
 double calculate_uncorrelated_std(double *a, double a_avg, int arrSize){
 
     double total=0;

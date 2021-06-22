@@ -4,10 +4,8 @@
 # include <stdlib.h>
 # include <math.h>
 
-# ifndef GENERATE_RANDOM_ARR
-# define GENERATE_RANDOM_ARR
-# include "generate_random_arr.h"
-# endif
+# include "../../shared/generate_random_arr.h"
+
 
 // A simple neural network that creates outputs
 // based on a numbers of input.

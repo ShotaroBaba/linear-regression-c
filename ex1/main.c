@@ -15,8 +15,8 @@
 # include <math.h>
 
 
-# include "lib/average_func.h"
-# include "lib/generate_random_arr.h"
+# include "../shared/average_func.h"
+# include "../shared/generate_random_arr.h"
 # include "lib/simple_neural_network.h"
 # include "lib/quadratic_neural_network.h"
 
