@@ -172,7 +172,7 @@ int main(int argc, char ** argv) {
 
         // Set learning rate    
         double learning_rate = 0.15;
-        int epoch_limit = 1000;
+        int epoch_limit = 5000;
         printf("Initial Phase\n");
         printf("w[0]: %f\n",w[0]);
         printf("w[1]: %f\n",w[1]);
