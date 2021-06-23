@@ -6,7 +6,7 @@
 # include "../../shared/generate_random_arr.h"
 # include "util.h"
 # define HIDDEN_LAYER_SIZE 2
-# define HIDDEN_LAYER_1_NODE_NUM 2
+# define HIDDEN_LAYER_1_NODE_NUM 10
 # define HIDDEN_LAYER_2_NODE_NUM 1
 # define INPUT_DIM 3
 
@@ -20,13 +20,15 @@
 
 double *** quadratic_create_sample_input(int arrSize);
 double * simple_create_random_weight(int arrSize);
+double *** create_output_array(int arrSize);
+
 
 // Create sample input to a single node
 // Note that a structure of the layer has already been 
 // decided
 double *** quadratic_create_sample_input(int arrSize) {
 
-    // The dimension of x is 3
+    // The dimension of x is 3 in this case.
     double ** x = (double **)calloc(arrSize,sizeof(double*));
     for (int i=0;i<arrSize;i++) {
         *(x+i)=(double *)calloc(INPUT_DIM,sizeof(double));
@@ -34,13 +36,14 @@ double *** quadratic_create_sample_input(int arrSize) {
 
     // Now create a array that stores a calculation result of
     // forward propagation.
-    double ** f_w_x_arr = (double **) calloc(HIDDEN_LAYER_SIZE, sizeof(double*));
+    // f_w_x[0],[1]
     
-    // The output result of node 1 & 2 on layer 1.
-    *(f_w_x_arr+0) = (double *) calloc(HIDDEN_LAYER_1_NODE_NUM, sizeof(double));
-    
+
+    // **(f_w_x_arr+0) = (double **) calloc(HIDDEN_LAYER_1_NODE_NUM, sizeof(double));
+
+
     // The output result of node 1 on layer 2.
-    *(f_w_x_arr+1) = (double *) calloc(HIDDEN_LAYER_2_NODE_NUM,sizeof(double));
+    // **(f_w_x_arr+1) = (double **) calloc(HIDDEN_LAYER_2_NODE_NUM,sizeof(double));
 
     double * y = (double *)calloc(arrSize,sizeof(double*));
     double *** k = (double ***)calloc(3,sizeof(double**));
@@ -49,23 +52,46 @@ double *** quadratic_create_sample_input(int arrSize) {
     for(int i=0;i<arrSize;i++){
 
         for(int j=0;j<INPUT_DIM-1;j++){
-            x[i][j]=rand_double(0,10);
+            x[i][j]=rand_double(0,4);
         }
 
         // Constant
         x[i][INPUT_DIM-1]=1;
         
         // For this function, the neural network find an optimal weights.;
-        y[i]= 10*x[i][0]*x[i][0]+10*x[i][1]+4 > 100 ? 0.9 : 0;
+        y[i]= 10*x[i][0]*x[i][0]*x[i][0]+10*x[i][1]+4 > 100 ? 0.9 : 0;
+        if(y[i]>100){
+            y[i]=0.9;
+        }
+        else if(y[i]>50){
+            y[i]=0.5;
+        }
+        else{
+            y[i]=0.1;
+        }
 
     }
 
     // Return all defined arrays.
     *(k)=x;
-    *(k+1)=f_w_x_arr;
-    *(k+2)=&y;
+    *(k+1)=&y;
 
     return k;
+}
+
+double *** quadratic_create_func_output_arr(int arrSize){
+    
+    double *** f_w_x_arr = (double ***) calloc(arrSize, sizeof(double**));
+    
+    for(int i=0;i<arrSize;i++){
+        *(f_w_x_arr+i)= (double **) calloc(HIDDEN_LAYER_SIZE, sizeof(double*));
+
+        f_w_x_arr[i][0] = (double *) calloc(HIDDEN_LAYER_1_NODE_NUM,sizeof(double));
+        f_w_x_arr[i][1] = (double *) calloc(HIDDEN_LAYER_2_NODE_NUM,sizeof(double));	 
+
+    }
+
+    return f_w_x_arr;
 }
 
 double *** quadratic_create_random_sample_weight() {

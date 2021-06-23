@@ -1,3 +1,4 @@
 *.out
 tmp_*
 .vscode
+test.out
