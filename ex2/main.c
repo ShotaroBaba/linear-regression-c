@@ -1,5 +1,5 @@
 // Define default values
-#define MAX_ARR_SIZE NUM_TRAIN_SIZE000
+#define MAX_ARR_SIZE 
 #define RAND_ERR_MIN -0.5
 #define RAND_ERR_MAX 0.5
 #define NUM_VALUES 3
@@ -7,7 +7,7 @@
 #define MIN_b_RANGE 1
 #define MAX_a_RANGE 10
 #define MAX_b_RANGE 10
-#define NUM_TRAIN_SIZE 1000
+#define NUM_TRAIN_SIZE 5000
 #define NUM_TEST_SIZE 1000
 //////////////////////////
 
@@ -36,7 +36,7 @@ int arrSize);
 // Simple linear regression
 int main(int argc, char ** argv) {
     
-    double alpha = 0.3;
+    double alpha = 0.1;
     double *** w = quadratic_create_random_sample_weight();
     double *** initial_input = quadratic_create_sample_input(NUM_TRAIN_SIZE);
 
@@ -44,7 +44,7 @@ int main(int argc, char ** argv) {
     double * y = initial_input[1][0];
     double *** f_w_x = quadratic_create_func_output_arr(NUM_TRAIN_SIZE);
     double *** d_err = quadratic_create_func_output_arr(NUM_TRAIN_SIZE);
-    int epoch = 5000;
+    int epoch = 20000;
 
 
     printf("Start Forward Propagation (For layer 1)\n");
@@ -162,8 +162,63 @@ int main(int argc, char ** argv) {
 
         }
 
-        printf("Epoch %d, Mean square error: %f\n", _, mean_square_error);
+        printf("Epoch %d, Mean square error: %f\n", _, mean_square_error/NUM_TRAIN_SIZE);
     }
 
+
+    // Testing a performance of
+    // the created neural network.
+
+    double *** test_arrays = quadratic_create_sample_input(NUM_TEST_SIZE);
+    double ** test_x = test_arrays[0];
+    double * test_y = test_arrays[1][0];
+
+    // Create a funtion that stores the neural network output 
+    // result.
+    double *** test_f_w_x = quadratic_create_func_output_arr(NUM_TEST_SIZE);
+
+    for(int test_index=0;test_index<NUM_TEST_SIZE;test_index++){
+        //////////////////////////////////////////
+        // Start neural network testing //////////
+        //////////////////////////////////////////
+        for(int i =0;i<HIDDEN_LAYER_1_NODE_NUM;i++){
+            
+            test_f_w_x[test_index][0][i]=0;
+
+            for(int k=0;k<INPUT_DIM;k++){
+                // printf("Calculating w[0][%d][%d]\n", i, k);
+                test_f_w_x[test_index][0][i]+=w[0][i][k]*x[test_index][k];
+            }
+
+            test_f_w_x[test_index][0][i]=calculate_sigmoid(test_f_w_x[test_index][0][i]);
+        }
+
+        // For layer 2.
+        // Note: The output of f_w_x can be multi-dimensional.
+        // printf("Start Forward Propagation (For layer 2)\n");
+        for (int i = 0;i<HIDDEN_LAYER_2_NODE_NUM;i++){
+            
+            test_f_w_x[test_index][1][i]=0;
+            for(int k=0;k<HIDDEN_LAYER_1_NODE_NUM;k++){
+                // printf("Calculating w[1][%d][%d]\n", i, k);
+                test_f_w_x[test_index][1][i]+=w[1][i][k]*test_f_w_x[test_index][0][k];
+            }
+
+            test_f_w_x[test_index][1][i]=calculate_sigmoid(test_f_w_x[test_index][1][i]);
+        }
+        
+        ///////////////////////////////////////
+        // Neural Network Test End ////////////
+        ///////////////////////////////////////
+
+    }
+
+    // compare the result f_w_x and  y//
+    for(int i = 0;i<NUM_TEST_SIZE;i++){
+        printf("test set %d: (f_w_x: %f, y: %f, [f_w_x - y]: %f)\n", i, 
+        test_f_w_x[i][1][0],
+        test_y[i],
+        test_f_w_x[i][1][0]- test_y[i]);
+    }
 
 }

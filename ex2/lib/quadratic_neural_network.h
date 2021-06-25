@@ -6,7 +6,7 @@
 # include "../../shared/generate_random_arr.h"
 # include "util.h"
 # define HIDDEN_LAYER_SIZE 2
-# define HIDDEN_LAYER_1_NODE_NUM 10
+# define HIDDEN_LAYER_1_NODE_NUM 15
 # define HIDDEN_LAYER_2_NODE_NUM 1
 # define INPUT_DIM 3
 
@@ -59,17 +59,7 @@ double *** quadratic_create_sample_input(int arrSize) {
         x[i][INPUT_DIM-1]=1;
         
         // For this function, the neural network find an optimal weights.;
-        y[i]= 10*x[i][0]*x[i][0]*x[i][0]+10*x[i][1]+4 > 100 ? 0.9 : 0;
-        if(y[i]>100){
-            y[i]=0.9;
-        }
-        else if(y[i]>50){
-            y[i]=0.5;
-        }
-        else{
-            y[i]=0.1;
-        }
-
+        y[i]= (x[i][0]*x[i][0]*x[i][0]+10*x[i][1]+4)/300.0;
     }
 
     // Return all defined arrays.
