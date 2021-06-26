@@ -103,12 +103,4 @@ double * y, int arrSize){
 
 }
 
-////////////////////////////////////////////////////////
-// Now calculating the weights with hidden node(s) /////
-// This could be faster & better than the upper one...      /////
-////////////////////////////////////////////////////////
-
-
-
-
 # endif
