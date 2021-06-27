@@ -18,7 +18,7 @@
 
 // *** a version with hidden layer ***////////////
 
-double *** quadratic_create_sample_input(int arrSize, int x_dim, int y_dim);
+double *** quadratic_create_sample_input(int arrSize, int x_dim);
 double * simple_create_random_weight(int arrSize);
 double *** create_output_array(int arrSize);
 
@@ -26,29 +26,37 @@ double *** create_output_array(int arrSize);
 // Create sample input to a single node
 // Note that a structure of the layer has already been 
 // decided
-double *** quadratic_create_sample_input(int arrSize, int x_dim, int y_dim) {
+
+// All returns: x_dim, y_dim,
+// Determine y dimension 
+double *** quadratic_create_sample_input(int arrSize, int x_dim) {
 
     // The dimension of x is 3 in this case.
+    double *** k = (double ***)calloc(2,sizeof(double**));
     double ** x = (double **)calloc(arrSize,sizeof(double*));
     for (int i=0;i<arrSize;i++) {
-        *(x+i)=(double *)calloc(INPUT_DIM,sizeof(double));
+        *(x+i)=(double *)calloc(x_dim,sizeof(double));
     }
 
     double * y = (double *)calloc(arrSize,sizeof(double*));
-    double *** k = (double ***)calloc(2,sizeof(double**));
+    double * random_a = (double *)calloc(x_dim,sizeof(double *));  
+    
+    for(int i=0;i<x_dim;i++){
+        random_a[i]=rand_double(0,1);
+    }
+
 
     // In this case, only one weight is created...
     for(int i=0;i<arrSize;i++){
 
-        for(int j=0;j<INPUT_DIM-1;j++){
-            x[i][j]=rand_double(0,4);
+        for(int j=0;j<x_dim-1;j++){
+            x[i][j]=rand_double(0,1);
         }
-
-        // Constant
-        x[i][INPUT_DIM-1]=1;
         
         // For this function, the neural network find an optimal weights.;
-        y[i]= (x[i][0]*x[i][0]*x[i][0]+10*x[i][1]+4)/300.0;
+        for(int j=0;j<x_dim;j++){
+            y[i]= x[i][j]*random_a[j];
+        }
     }
 
     // Return all defined arrays.

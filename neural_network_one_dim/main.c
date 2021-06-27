@@ -40,13 +40,6 @@ int main(int argc, char ** argv) {
     
     double alpha = 0.1;
     double *** w = quadratic_create_random_sample_weight();
-    double *** initial_input = quadratic_create_sample_input(NUM_TRAIN_SIZE, X_DIM,Y_DIM);
-
-    double ** x = initial_input[0];
-    double * y = initial_input[1][0];
-    double *** f_w_x = quadratic_create_func_output_arr(NUM_TRAIN_SIZE);
-    double *** d_err = quadratic_create_func_output_arr(NUM_TRAIN_SIZE);
-    int epoch = 20000;
-
+    double *** initial_input = quadratic_create_sample_input(NUM_TRAIN_SIZE,10);
 
 }
