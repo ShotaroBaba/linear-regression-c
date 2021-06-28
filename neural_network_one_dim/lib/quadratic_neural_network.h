@@ -4,6 +4,7 @@
 # include <stdlib.h>
 # include <math.h>
 # include "../../shared/generate_random_arr.h"
+# include "../../shared/min_max.h"
 # include "util.h"
 # define HIDDEN_LAYER_SIZE 2
 # define HIDDEN_LAYER_1_NODE_NUM 15
@@ -27,8 +28,6 @@ double *** create_output_array(int arrSize);
 // Note that a structure of the layer has already been 
 // decided
 
-// All returns: x_dim, y_dim,
-// Determine y dimension 
 double *** quadratic_create_sample_input(int arrSize, int x_dim) {
 
     // The dimension of x is 3 in this case.
@@ -48,15 +47,19 @@ double *** quadratic_create_sample_input(int arrSize, int x_dim) {
 
     // In this case, only one weight is created...
     for(int i=0;i<arrSize;i++){
-
-        for(int j=0;j<x_dim-1;j++){
-            x[i][j]=rand_double(0,1);
-        }
         
         // For this function, the neural network find an optimal weights.;
         for(int j=0;j<x_dim;j++){
             y[i]= x[i][j]*random_a[j];
         }
+        
+    }
+    
+    // Normalize before inputting the values
+    double max_y = findMax(y, arrSize);
+
+    for(int i=0;i<x_dim-1;i++){
+        y[i]/=max_y;
     }
 
     // Return all defined arrays.
@@ -68,7 +71,7 @@ double *** quadratic_create_sample_input(int arrSize, int x_dim) {
 
 
 // Create layer here.
-// This 
+// The weight & output f_w_x is created simultaneously.
 double *** quadratic_create_func_output_arr(int arrSize){
     
     double *** f_w_x_arr = (double ***) calloc(arrSize, sizeof(double**));
