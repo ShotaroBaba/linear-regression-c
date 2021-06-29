@@ -2,19 +2,6 @@
 # define UTIL
 # include <math.h>
 
-// find maximum value on the array
-double find_max_value(double * arr, int size) {
-
-    int i;
-    int maxValue = arr[0];
-
-    for (i = 1; i < size; ++i) {
-        if ( arr[i] > maxValue ) {
-            maxValue = arr[i];
-        }
-    }
-    return maxValue;
-}
 
 double calculate_sigmoid(double a){
     return 1/(1+exp(-a));
@@ -25,5 +12,40 @@ double calculate_diff_sigmoid(double a){
     return calculate_sigmoid(a)*(1-calculate_sigmoid(a));
 }
 
+double calculate_sigmoid_arr(double *a, int arrSize) {
+
+    double tmp_sum = 0;
+    for(int i = 0;i<arrSize;i++){
+        tmp_sum+=a[i];
+    }
+
+    return 1/(1+exp(-tmp_sum));
+}
+
+double calculate_diff_sigmoid_arr(double *a){
+    return calculate_sigmoid(*a)*(1-calculate_sigmoid(*a));
+}
+
+
+double * calculate_dot(double *a, double *b, int arrSize){
+
+    // Check if both size is the same...
+    int a_size=sizeof(a)/sizeof(double);
+    int b_size=sizeof(b)/sizeof(double);
+
+    if(a_size!=b_size){
+        printf("Error: The size of a and b is not the same.\n");
+        return NULL;
+    }
+
+    double * dot_result= calloc(arrSize, sizeof(double));
+    
+
+    for(int i =0; i<arrSize; i++){
+        dot_result[i]=a[i]*b[i];
+    }
+
+    return dot_result;
+}
 
 # endif
