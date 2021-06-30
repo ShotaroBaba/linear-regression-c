@@ -7,8 +7,6 @@
 # include "../../shared/min_max.h"
 # include "util.h"
 # define HIDDEN_LAYER_SIZE 2
-# define HIDDEN_LAYER_1_NODE_NUM 15
-# define HIDDEN_LAYER_2_NODE_NUM 1
 # define INPUT_DIM 3
 
 // A neural network with hidden nodes that creates outputs
@@ -36,7 +34,7 @@ double *** quadratic_create_sample_input(int arrSize, int x_dim) {
         *(x+i)=(double *)calloc(x_dim,sizeof(double));
     }
 
-    double * y = (double *)calloc(arrSize,sizeof(double*));
+    double * y = (double *)calloc(arrSize,sizeof(double));
     double * random_a = (double *)calloc(x_dim,sizeof(double *));  
     
     for(int i=0;i<x_dim;i++){

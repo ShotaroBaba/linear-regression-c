@@ -118,7 +118,7 @@ int main(int argc, char ** argv) {
             // Now on Layer 2.
             for(int i = 0;i<HIDDEN_LAYER_1_NODE_NUM;i++){
                 double tmp_sum_backword = 0;
-
+                
                 for(int k=0;k<INPUT_DIM;k++){
                     tmp_sum_backword+=w[0][i][k]*x[train_index][k];
                 }

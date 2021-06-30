@@ -22,8 +22,8 @@ double calculate_sigmoid_arr(double *a, int arrSize) {
     return 1/(1+exp(-tmp_sum));
 }
 
-double calculate_diff_sigmoid_arr(double *a){
-    return calculate_sigmoid(*a)*(1-calculate_sigmoid(*a));
+double calculate_sigmoid_diff_arr(double *a,int arrSize){
+    return calculate_sigmoid_arr(a,arrSize)*(1-calculate_sigmoid_arr(a,arrSize));
 }
 
 
