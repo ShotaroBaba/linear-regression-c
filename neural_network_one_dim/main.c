@@ -1,3 +1,5 @@
+// NOTE: There are no optimizers for this implementation.
+
 // Define default values
 #define MAX_ARR_SIZE 
 #define RAND_ERR_MIN -0.5
@@ -9,10 +11,13 @@
 #define MIN_b_RANGE 1
 #define MAX_a_RANGE 10
 #define MAX_b_RANGE 10
+
 #define NUM_TRAIN_SIZE 20000
-#define NUM_TEST_SIZE 1000
-#define NUM_EPOCHS 500
+#define NUM_TEST_SIZE 2000
+#define NUM_EPOCHS 50
 //////////////////////////
+
+
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -28,27 +33,25 @@
 double ** generate_random_data();
 double rand_double(double a, double b);
 double * create_array();
-double calculate_average(double *a, int arrSize);
-double calculate_uncorrelated_std(double *a, double a_avg,int arrSize);
-double calculate_sample_correlation_coefficient(double *a, double *b,
-double avg_x, double avg_y,
-double u_std_a, double u_std_b,
-int arrSize);
 //////////////////////////////////
 
+
+// TODO: Add biases
 // Simple linear regression
 int main(int argc, char ** argv) {
     
     time_t t;
 
+    // Set random seed using current time.
     srand((unsigned)time(&t));
-    int x_dim = 10;
+    
+    int x_dim = 3;
     int y_dim = 1;
-    int layer_num = 6;
+    int layer_num = 8;
 
     // Note: The array size of node num must be more than 1.
     // In addtion, the last dimension must be 1.
-    int node_num[] = {x_dim, 4,3,7,3,y_dim};
+    int node_num[] = {x_dim, 10,6,6,6,6,6,y_dim};
     int node_size = sizeof(node_num)/sizeof(int);
 
     printf("Node size: %d\n", node_size);
@@ -58,15 +61,21 @@ int main(int argc, char ** argv) {
         return 1;
     }
 
-    double alpha = 0.1;
+    double alpha = 0.02;
     double *** initial_input = quadratic_create_sample_input(NUM_TRAIN_SIZE,x_dim);
     double ** x  = initial_input[0];
     double * y = initial_input[1][0];
+    double * a = initial_input[2][0];
 
+    // w [layer] [next_node_num] [previous_node_num]
+    // f_w_x [layer] [next_node_num] 
     double *** w = create_random_weight(layer_num,node_num);
     double *** f_w_x = create_func_output_arr(NUM_TRAIN_SIZE,layer_num,node_num);
     double *** d_err = create_func_output_arr(NUM_TRAIN_SIZE,layer_num,node_num);
-
+    double *bias = calloc(layer_num-1,sizeof(double));
+    for (int i=0;i<layer_num-1;i++){
+        bias[i]=0;
+    }
     ////////////////////////////////////////////////////////////////
     // Forward Propagation ///////////
     ////////////////////////////////////////////////////////////////
@@ -79,14 +88,21 @@ int main(int argc, char ** argv) {
             for(int j = 0;j<layer_num-1;j++){
                 for(int k =0;k<node_num[j+1];k++){
                     // If a layer is zero, then input a first num
+                    // Layer 2
                     if(j==0) {
                         double * x_dot_w = calculate_dot(w[j][k], x[train_index],x_dim);
-                        f_w_x[train_index][j][k] = calculate_sigmoid_arr(x_dot_w,node_num[j]);
+                        f_w_x[train_index][j][k] = calculate_linear_arr(x_dot_w,bias[j],node_num[j]);
                         free(x_dot_w);
                     }
+                    else if(j==layer_num-2){
+                        double * x_dot_w = calculate_dot(w[j][k], f_w_x[train_index][j-1],node_num[j]);
+                        f_w_x[train_index][j][k] = calculate_linear_arr(x_dot_w,bias[j],node_num[j]);
+                        free(x_dot_w);
+                    }
+
                     else {
                         double * x_dot_w = calculate_dot(w[j][k], f_w_x[train_index][j-1],node_num[j]);
-                        f_w_x[train_index][j][k] = calculate_sigmoid_arr(x_dot_w,node_num[j]);
+                        f_w_x[train_index][j][k] = calculate_linear_arr(x_dot_w,bias[j],node_num[j]);
                         free(x_dot_w);
                     }
                 }
@@ -124,32 +140,41 @@ int main(int argc, char ** argv) {
                                     
                         // Calcualte previous layer dot product first.
                         double * x_dot_w = calculate_dot(w[j-1][k], f_w_x[train_index][j-2],node_num[j-1]);
-
+                        
                         for(int l = 0;l<node_num[j];l++) {
                             // The value l can be fitted into y...
-                            d_err[train_index][j-1][k] += (y[train_index] - f_w_x[train_index][j-1][k])
-                            *calculate_sigmoid_diff_arr(x_dot_w,node_num[j-1]);
+                            d_err[train_index][j-1][k] += (f_w_x[train_index][j-1][k]-y[train_index])
+                            *1/NUM_TRAIN_SIZE;
                         }
                         
-                        mean_square_error+=pow(d_err[train_index][j-1][k],2)/(2*NUM_TRAIN_SIZE);
+                        mean_square_error+=pow(y[train_index] - f_w_x[train_index][j-1][k],2)/(2);
                         free(x_dot_w);
                     
                     }
+
+                    // Layer 2:
                     else if(j==1) {
                         double * x_dot_w = calculate_dot(w[j-1][k], x[train_index],node_num[j-1]);
                         for(int l = 0;l<node_num[j+1];l++){
-                            d_err[train_index][j-1][k] += w[j][l][k]*d_err[train_index][j][l]*
-                            calculate_sigmoid_diff_arr(x_dot_w,node_num[j-1]);
+                            d_err[train_index][j-1][k] += w[j][l][k]*d_err[train_index][j][l]
+                            // *
+                            // calculate_sigmoid_diff_arr(x_dot_w,bias[j-1],node_num[j-1])
+                            ;
                             
                         }
                         free(x_dot_w);
 
                     }
+
+                    // 2 < layer n < layer_num (layer_num > 3)
+                    // Inputting Z_L-1 = sum(w_L*delta_L*sigma(Z_L-1))
                     else {
                         double * x_dot_w = calculate_dot(w[j-1][k], f_w_x[train_index][j-2],node_num[j-1]);
                         for(int l = 0;l<node_num[j+1];l++){
-                            d_err[train_index][j-1][k] += w[j][l][k]*d_err[train_index][j][l]*
-                            calculate_sigmoid_diff_arr(x_dot_w,node_num[j-1]);   
+                            d_err[train_index][j-1][k] += w[j][l][k]*d_err[train_index][j][l]
+                            // *
+                            // calculate_sigmoid_diff_arr(x_dot_w,bias[j-1],node_num[j-1])
+                            ;   
                         }
                         free(x_dot_w);
 
@@ -158,6 +183,8 @@ int main(int argc, char ** argv) {
             }
 
         }
+
+
         ////////////////////////////////////////////////////////////////
         // Backward Propagation End ///////////
         ////////////////////////////////////////////////////////////////
@@ -168,12 +195,18 @@ int main(int argc, char ** argv) {
         // Gradient Descent　//////////////
         ////////////////////////////////////////////////////////////////
         
-
         for(int train_index = 0;train_index<NUM_TRAIN_SIZE;train_index++){
             for(int i =0;i<layer_num-1;i++){
                 for(int j = 0;j<node_num[i+1];j++){
                     for(int k=0;k<node_num[i];k++){
-                        w[i][j][k]-=alpha*d_err[train_index][i][j]*f_w_x[train_index][i][j]/NUM_TRAIN_SIZE;
+                        if(i>0){
+                            w[i][j][k]-=alpha*d_err[train_index][i][j]*f_w_x[train_index][i-1][k]/NUM_TRAIN_SIZE;
+                            bias[i]-=alpha*d_err[train_index][i][j]/NUM_TRAIN_SIZE;
+                        }
+                        else{
+                            w[i][j][k]-=alpha*d_err[train_index][i][j]*x[train_index][k]/NUM_TRAIN_SIZE;
+                            bias[i]-=alpha*d_err[train_index][i][j]/NUM_TRAIN_SIZE;
+                        }
                     }
                 }
             }
@@ -191,7 +224,68 @@ int main(int argc, char ** argv) {
         //         }   
         //     }
         // }
+    }
+
+    // for(int train_index = 0;train_index<NUM_TRAIN_SIZE;train_index++){
+
+    //     for(int i = 0;i<node_num[layer_num-1];i++){
+    //         printf( "train_index: %d, f - y: %f, y: %f, f: %f\n",train_index,f_w_x[train_index][layer_num-2][i] - y[train_index],
+    //         y[train_index],
+    //         f_w_x[train_index][layer_num-2][i]);
+    //     }
+    // }
+
+    double *** test_k = create_test_data_set(a, NUM_TEST_SIZE,x_dim);
+    double ** test_x = test_k[0];
+    double * test_y = test_k[1][0];
+    double *** test_f_w_x = create_func_output_arr(NUM_TEST_SIZE,layer_num,node_num);
+
+    /// Put all test values into a neural Network
+    /// where all weights are adjusted by the previous backward propagations.
+    for(int test_index = 0;test_index<NUM_TEST_SIZE;test_index++){
+        for(int j = 0;j<layer_num-1;j++){
+            for(int k =0;k<node_num[j+1];k++){
+                // If a layer is zero, then input a first num
+                if(j==0) {
+                    double * x_dot_w = calculate_dot(w[j][k], x[test_index],x_dim);
+                    test_f_w_x[test_index][j][k] = calculate_linear_arr(x_dot_w,bias[j],node_num[j]);
+                    free(x_dot_w);
+                }
+                else {
+                    double * x_dot_w = calculate_dot(w[j][k], test_f_w_x[test_index][j-1],node_num[j]);
+                    test_f_w_x[test_index][j][k] = calculate_linear_arr(x_dot_w,bias[j],node_num[j]);
+                    free(x_dot_w);
+                }
+            }
         }
 
+        
+    }
+
+    // Print the diff between test_f_w_x (predict) & y (output).
+    for(int test_index = 0;test_index<NUM_TEST_SIZE;test_index++){
+
+        for (int i=0;i<x_dim;i++){
+            
+            printf("x[%d]: %f ", i, test_x[test_index][i]);
+            if(i==x_dim-1){
+                printf(":::\n");
+            }
+        }
+
+        for(int i = 0;i<node_num[layer_num-1];i++){
+            printf( "test_index: %d, f - y: %f, y: %f, f: %f\n",test_index,test_f_w_x[test_index][layer_num-2][i] - test_y[test_index],
+            test_y[test_index],
+            test_f_w_x[test_index][layer_num-2][i]);
+        }
+    }
+    
+    for(int i=0;i<layer_num-1;i++){
+        for (int j=0;j<node_num[i+1];j++){
+            for(int k=0;k<node_num[i];k++){
+                printf("i: %d, j: %d, k: %d, f: %f\n", i,j,k,w[i][j][k]);
+            }
+        }
+    }
 
 }

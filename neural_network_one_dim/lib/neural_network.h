@@ -20,7 +20,7 @@
 double *** quadratic_create_sample_input(int arrSize, int x_dim);
 double *** create_func_output_arr(int arrSize,int layer_num, int* node_num);
 double *** create_random_weight(int layer_size,int* node_num);
-
+double *** create_test_data_set(double * a, int arrSize, int x_dim);
 // Create sample input to a single node
 // Note that a structure of the layer has already been 
 // decided
@@ -28,7 +28,7 @@ double *** create_random_weight(int layer_size,int* node_num);
 double *** quadratic_create_sample_input(int arrSize, int x_dim) {
 
     // The dimension of x is 3 in this case.
-    double *** k = (double ***)calloc(2,sizeof(double**));
+    double *** k = (double ***)calloc(3,sizeof(double**));
     double ** x = (double **)calloc(arrSize,sizeof(double*));
     for (int i=0;i<arrSize;i++) {
         *(x+i)=(double *)calloc(x_dim,sizeof(double));
@@ -38,25 +38,69 @@ double *** quadratic_create_sample_input(int arrSize, int x_dim) {
     double * random_a = (double *)calloc(x_dim,sizeof(double *));  
     
     for(int i=0;i<x_dim;i++){
-        random_a[i]=rand_double(0,1.0);
+        random_a[i]=rand_double(0,3.0);
     }
 
 
     // In this case, only one weight is created...
     for(int i=0;i<arrSize;i++){
-        
+        y[i] = 0;
         // For this function, the neural network find an optimal weights.;
         for(int j=0;j<x_dim;j++){
-            x[i][j]=rand_double(0,1.0);
-            y[i]= x[i][j]*random_a[j];
+            x[i][j]=rand_double(0,4.0);
+            y[i]+= pow(x[i][j],j);
         }
-        
+
+        if(y[i]<0){
+            y[i] = -y[i];
+        }
     }
-    
+
+
+
     // Normalize before inputting the values
     double max_y = findMax(y, arrSize);
 
-    for(int i=0;i<x_dim-1;i++){
+    for(int i=0;i<arrSize;i++){
+        y[i]/=max_y;
+    }
+
+    // Return all defined arrays.
+    *(k)=x;
+    *(k+1)=&y;
+    *(k+2)=&random_a;
+
+    return k;
+}
+
+double *** create_test_data_set(double * a,int arrSize,int x_dim){
+    
+    double *** k = (double ***)calloc(2,sizeof(double**));
+    double ** x = (double **)calloc(arrSize,sizeof(double*));
+    for (int i=0;i<arrSize;i++) {
+        *(x+i)=(double *)calloc(x_dim,sizeof(double));
+    }
+
+    double * y = (double *)calloc(arrSize,sizeof(double));  
+
+
+    // In this case, only one weight is created...
+    for(int i=0;i<arrSize;i++){
+        y[i] = 0;
+        // For this function, the neural network find an optimal weights.;
+        for(int j=0;j<x_dim;j++){
+            x[i][j]=rand_double(0,4.0);
+            y[i]+= pow(x[i][j],j);
+        }
+        if(y[i]<0){
+            y[i] = -y[i];
+        }
+    }
+
+    // Normalize before inputting the values
+    double max_y = findMax(y, arrSize);
+
+    for(int i=0;i<arrSize;i++){
         y[i]/=max_y;
     }
 
@@ -96,11 +140,11 @@ double *** create_random_weight(int layer_size, int* node_num){
         
         w[i] = (double **) calloc(node_num[i+1], sizeof(double*));
 
-        // Layer i + 1
+        // Layer i + 1 (next layer)
         for(int j=0; j< node_num[i+1];j++){
 
 
-            // Layer i
+            // Layer i (current layer)
             w[i][j]=(double * ) calloc(node_num[i],sizeof(double));
             for(int k=0;k<node_num[i];k++){
                 w[i][j][k]=rand_double(0,1);
