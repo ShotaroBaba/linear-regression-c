@@ -12,9 +12,9 @@
 #define MAX_a_RANGE 10
 #define MAX_b_RANGE 10
 
-#define NUM_TRAIN_SIZE 20000
-#define NUM_TEST_SIZE 2000
-#define NUM_EPOCHS 50
+#define NUM_TRAIN_SIZE 25000
+#define NUM_TEST_SIZE 5000
+#define NUM_EPOCHS 80
 //////////////////////////
 
 
@@ -47,11 +47,11 @@ int main(int argc, char ** argv) {
     
     int x_dim = 3;
     int y_dim = 1;
-    int layer_num = 8;
+    int layer_num = 7;
 
     // Note: The array size of node num must be more than 1.
     // In addtion, the last dimension must be 1.
-    int node_num[] = {x_dim, 10,6,6,6,6,6,y_dim};
+    int node_num[] = {x_dim, 25,8,4,3,3,y_dim};
     int node_size = sizeof(node_num)/sizeof(int);
 
     printf("Node size: %d\n", node_size);
@@ -61,7 +61,7 @@ int main(int argc, char ** argv) {
         return 1;
     }
 
-    double alpha = 0.02;
+    double alpha = 0.01;
     double *** initial_input = quadratic_create_sample_input(NUM_TRAIN_SIZE,x_dim);
     double ** x  = initial_input[0];
     double * y = initial_input[1][0];
@@ -82,7 +82,7 @@ int main(int argc, char ** argv) {
     
     // Start the computation with
     // Initialize mean square_error.
-    for(int epoch = 0; epoch < NUM_EPOCHS; ++epoch){
+    for(int epoch = 0; epoch < NUM_EPOCHS; epoch++){
         double mean_square_error = 0;
         for(int train_index = 0;train_index<NUM_TRAIN_SIZE;train_index++){
             for(int j = 0;j<layer_num-1;j++){
@@ -91,11 +91,6 @@ int main(int argc, char ** argv) {
                     // Layer 2
                     if(j==0) {
                         double * x_dot_w = calculate_dot(w[j][k], x[train_index],x_dim);
-                        f_w_x[train_index][j][k] = calculate_linear_arr(x_dot_w,bias[j],node_num[j]);
-                        free(x_dot_w);
-                    }
-                    else if(j==layer_num-2){
-                        double * x_dot_w = calculate_dot(w[j][k], f_w_x[train_index][j-1],node_num[j]);
                         f_w_x[train_index][j][k] = calculate_linear_arr(x_dot_w,bias[j],node_num[j]);
                         free(x_dot_w);
                     }
@@ -109,14 +104,24 @@ int main(int argc, char ** argv) {
             }
         }
 
-        // for(int train_index = 0;train_index<NUM_TRAIN_SIZE;train_index++){
-        //     for(int j = 0;j<layer_num-1;j++){
-        //         for(int k=0;k<node_num[j+1];k++){
-        //             printf("i: %d, j: %d, k: %d, f_w_x: %f\n", train_index,j,k,f_w_x[train_index][j][k]);
-        //             }
+        if(epoch==NUM_EPOCHS-2){
+            for(int train_index = 0;train_index<NUM_TRAIN_SIZE;train_index++){
+                for (int i=0;i<x_dim;i++){
+                    
+                    printf("x[%d]: %f ", i, x[train_index][i]);
+                    if(i==x_dim-1){
+                        printf(":::\n");
+                    }
+                }
 
-        //     }   
-        // }
+                for(int i = 0;i<node_num[layer_num-1];i++){
+                    printf( "train_index: %d, f - y: %f, y: %f, f: %f\n",train_index,f_w_x[train_index][layer_num-2][i] - y[train_index],
+                    y[train_index],
+                    f_w_x[train_index][layer_num-2][i]);
+                }
+            }
+        }
+        
 
         ////////////////////////////////////////////////////////////////
         // Forward Propagation End ///////////
@@ -144,10 +149,10 @@ int main(int argc, char ** argv) {
                         for(int l = 0;l<node_num[j];l++) {
                             // The value l can be fitted into y...
                             d_err[train_index][j-1][k] += (f_w_x[train_index][j-1][k]-y[train_index])
-                            *1/NUM_TRAIN_SIZE;
+                            *1;
                         }
                         
-                        mean_square_error+=pow(y[train_index] - f_w_x[train_index][j-1][k],2)/(2);
+                        mean_square_error+=pow(y[train_index] - f_w_x[train_index][j-1][k],2)/(2*NUM_TRAIN_SIZE);
                         free(x_dot_w);
                     
                     }
@@ -156,7 +161,7 @@ int main(int argc, char ** argv) {
                     else if(j==1) {
                         double * x_dot_w = calculate_dot(w[j-1][k], x[train_index],node_num[j-1]);
                         for(int l = 0;l<node_num[j+1];l++){
-                            d_err[train_index][j-1][k] += w[j][l][k]*d_err[train_index][j][l]
+                            d_err[train_index][j-1][k] += w[j][l][k]*d_err[train_index][j][l]*1
                             // *
                             // calculate_sigmoid_diff_arr(x_dot_w,bias[j-1],node_num[j-1])
                             ;
@@ -171,7 +176,7 @@ int main(int argc, char ** argv) {
                     else {
                         double * x_dot_w = calculate_dot(w[j-1][k], f_w_x[train_index][j-2],node_num[j-1]);
                         for(int l = 0;l<node_num[j+1];l++){
-                            d_err[train_index][j-1][k] += w[j][l][k]*d_err[train_index][j][l]
+                            d_err[train_index][j-1][k] += w[j][l][k]*d_err[train_index][j][l]*1
                             // *
                             // calculate_sigmoid_diff_arr(x_dot_w,bias[j-1],node_num[j-1])
                             ;   
@@ -217,28 +222,16 @@ int main(int argc, char ** argv) {
         ////////////////////////////////////////////////////////////////
         
         printf("Epoch %d, MSE: %f\n", epoch, mean_square_error);
-        // for(int train_index = 0;train_index<NUM_TRAIN_SIZE;train_index++){
-        //     for(int j = 0;j<layer_num-1;j++){
-        //         for(int k=0;k<node_num[j+1];k++){
-        //             printf("i: %d, j: %d, k: %d, d_err: %f\n", train_index,j,k,d_err[train_index][j][k]);
-        //         }   
-        //     }
-        // }
+
     }
 
     // for(int train_index = 0;train_index<NUM_TRAIN_SIZE;train_index++){
-
-    //     for(int i = 0;i<node_num[layer_num-1];i++){
-    //         printf( "train_index: %d, f - y: %f, y: %f, f: %f\n",train_index,f_w_x[train_index][layer_num-2][i] - y[train_index],
-    //         y[train_index],
-    //         f_w_x[train_index][layer_num-2][i]);
-    //     }
-    // }
 
     double *** test_k = create_test_data_set(a, NUM_TEST_SIZE,x_dim);
     double ** test_x = test_k[0];
     double * test_y = test_k[1][0];
     double *** test_f_w_x = create_func_output_arr(NUM_TEST_SIZE,layer_num,node_num);
+    double test_mean_square_error=0;
 
     /// Put all test values into a neural Network
     /// where all weights are adjusted by the previous backward propagations.
@@ -247,7 +240,7 @@ int main(int argc, char ** argv) {
             for(int k =0;k<node_num[j+1];k++){
                 // If a layer is zero, then input a first num
                 if(j==0) {
-                    double * x_dot_w = calculate_dot(w[j][k], x[test_index],x_dim);
+                    double * x_dot_w = calculate_dot(w[j][k], test_x[test_index],x_dim);
                     test_f_w_x[test_index][j][k] = calculate_linear_arr(x_dot_w,bias[j],node_num[j]);
                     free(x_dot_w);
                 }
@@ -259,7 +252,8 @@ int main(int argc, char ** argv) {
             }
         }
 
-        
+        test_mean_square_error+=pow(test_y[test_index] - test_f_w_x[test_index][layer_num-2][0],2)/(2*NUM_TEST_SIZE);
+                
     }
 
     // Print the diff between test_f_w_x (predict) & y (output).
@@ -274,7 +268,7 @@ int main(int argc, char ** argv) {
         }
 
         for(int i = 0;i<node_num[layer_num-1];i++){
-            printf( "test_index: %d, f - y: %f, y: %f, f: %f\n",test_index,test_f_w_x[test_index][layer_num-2][i] - test_y[test_index],
+            printf( "x: %f, train_index: %d, f - y: %f, y: %f, f: %f\n",test_x[test_index][0],test_index,test_f_w_x[test_index][layer_num-2][i] - y[test_index],
             test_y[test_index],
             test_f_w_x[test_index][layer_num-2][i]);
         }
@@ -283,9 +277,10 @@ int main(int argc, char ** argv) {
     for(int i=0;i<layer_num-1;i++){
         for (int j=0;j<node_num[i+1];j++){
             for(int k=0;k<node_num[i];k++){
-                printf("i: %d, j: %d, k: %d, f: %f\n", i,j,k,w[i][j][k]);
+                printf("i: %d, j: %d, k: %d, w: %f\n", i,j,k,w[i][j][k]);
             }
         }
     }
 
+    printf("Test MSE: %f\n", test_mean_square_error);
 }

@@ -1,5 +1,5 @@
-# ifndef QUADRATIC_NEURAL_NETWORK
-# define QUADRATIC_NEURAL_NETWORK
+# ifndef NEURAL_NETWORK_ONE_DIM
+# define NEURAL_NETWORK_ONE_DIM
 # include <stdio.h>
 # include <stdlib.h>
 # include <math.h>
@@ -47,8 +47,8 @@ double *** quadratic_create_sample_input(int arrSize, int x_dim) {
         y[i] = 0;
         // For this function, the neural network find an optimal weights.;
         for(int j=0;j<x_dim;j++){
-            x[i][j]=rand_double(0,4.0);
-            y[i]+= pow(x[i][j],j);
+            x[i][j]=rand_double(1,50);
+            y[i]+= pow(x[i][j],j+1);
         }
 
         if(y[i]<0){
@@ -89,8 +89,8 @@ double *** create_test_data_set(double * a,int arrSize,int x_dim){
         y[i] = 0;
         // For this function, the neural network find an optimal weights.;
         for(int j=0;j<x_dim;j++){
-            x[i][j]=rand_double(0,4.0);
-            y[i]+= pow(x[i][j],j);
+            x[i][j]=rand_double(1,50);
+            y[i]+= pow(x[i][j],j+1);
         }
         if(y[i]<0){
             y[i] = -y[i];
@@ -147,12 +147,36 @@ double *** create_random_weight(int layer_size, int* node_num){
             // Layer i (current layer)
             w[i][j]=(double * ) calloc(node_num[i],sizeof(double));
             for(int k=0;k<node_num[i];k++){
-                w[i][j][k]=rand_double(0,1);
+                w[i][j][k]=rand_double(-0.5,0.5);
             }
         }
     }
 
     return w;
+}
+
+double *** create_random_weight_xavier(int layer_size, int* node_num){
+    // All nodes are treated with sigmoid function.
+    double *** w = (double ***) calloc(layer_size,sizeof(double**));
+
+    for(int i=0; i<layer_size-1;i++){
+        
+        w[i] = (double **) calloc(node_num[i+1], sizeof(double*));
+
+        // Layer i + 1 (next layer)
+        for(int j=0; j< node_num[i+1];j++){
+
+
+            // Layer i (current layer)
+            w[i][j]=(double * ) calloc(node_num[i],sizeof(double));
+            for(int k=0;k<node_num[i];k++){
+                w[i][j][k]=rand_double(-0.5,0.5);
+            }
+        }
+    }
+
+    return w;
+
 }
 
 # endif
