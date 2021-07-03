@@ -47,13 +47,10 @@ double *** quadratic_create_sample_input(int arrSize, int x_dim) {
         y[i] = 0;
         // For this function, the neural network find an optimal weights.;
         for(int j=0;j<x_dim;j++){
-            x[i][j]=rand_double(1,50);
+            x[i][j]=rand_double(0,10);
             y[i]+= pow(x[i][j],j+1);
         }
 
-        if(y[i]<0){
-            y[i] = -y[i];
-        }
     }
 
 
@@ -89,12 +86,10 @@ double *** create_test_data_set(double * a,int arrSize,int x_dim){
         y[i] = 0;
         // For this function, the neural network find an optimal weights.;
         for(int j=0;j<x_dim;j++){
-            x[i][j]=rand_double(1,50);
+            x[i][j]=rand_double(0,10);
             y[i]+= pow(x[i][j],j+1);
         }
-        if(y[i]<0){
-            y[i] = -y[i];
-        }
+
     }
 
     // Normalize before inputting the values
@@ -147,7 +142,7 @@ double *** create_random_weight(int layer_size, int* node_num){
             // Layer i (current layer)
             w[i][j]=(double * ) calloc(node_num[i],sizeof(double));
             for(int k=0;k<node_num[i];k++){
-                w[i][j][k]=rand_double(-0.5,0.5);
+                w[i][j][k]=rand_double(-0.1,0.1);
             }
         }
     }
@@ -155,6 +150,7 @@ double *** create_random_weight(int layer_size, int* node_num){
     return w;
 }
 
+// Xavier weight initialization
 double *** create_random_weight_xavier(int layer_size, int* node_num){
     // All nodes are treated with sigmoid function.
     double *** w = (double ***) calloc(layer_size,sizeof(double**));
@@ -165,12 +161,10 @@ double *** create_random_weight_xavier(int layer_size, int* node_num){
 
         // Layer i + 1 (next layer)
         for(int j=0; j< node_num[i+1];j++){
-
-
             // Layer i (current layer)
             w[i][j]=(double * ) calloc(node_num[i],sizeof(double));
             for(int k=0;k<node_num[i];k++){
-                w[i][j][k]=rand_double(-0.5,0.5);
+                w[i][j][k]=rand_double(-sqrt(6)/(node_num[i+1]+node_num[i]),sqrt(6)/(node_num[i+1]+node_num[i]));
             }
         }
     }

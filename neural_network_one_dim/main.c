@@ -12,9 +12,9 @@
 #define MAX_a_RANGE 10
 #define MAX_b_RANGE 10
 
-#define NUM_TRAIN_SIZE 25000
+#define NUM_TRAIN_SIZE 30000
 #define NUM_TEST_SIZE 5000
-#define NUM_EPOCHS 80
+#define NUM_EPOCHS 500
 //////////////////////////
 
 
@@ -36,7 +36,6 @@ double * create_array();
 //////////////////////////////////
 
 
-// TODO: Add biases
 // Simple linear regression
 int main(int argc, char ** argv) {
     
@@ -45,13 +44,13 @@ int main(int argc, char ** argv) {
     // Set random seed using current time.
     srand((unsigned)time(&t));
     
-    int x_dim = 3;
+    int x_dim = 2;
     int y_dim = 1;
-    int layer_num = 7;
+    int layer_num = 4;
 
     // Note: The array size of node num must be more than 1.
     // In addtion, the last dimension must be 1.
-    int node_num[] = {x_dim, 25,8,4,3,3,y_dim};
+    int node_num[] = {x_dim, 15,2,y_dim};
     int node_size = sizeof(node_num)/sizeof(int);
 
     printf("Node size: %d\n", node_size);
@@ -69,7 +68,7 @@ int main(int argc, char ** argv) {
 
     // w [layer] [next_node_num] [previous_node_num]
     // f_w_x [layer] [next_node_num] 
-    double *** w = create_random_weight(layer_num,node_num);
+    double *** w = create_random_weight_xavier(layer_num,node_num);
     double *** f_w_x = create_func_output_arr(NUM_TRAIN_SIZE,layer_num,node_num);
     double *** d_err = create_func_output_arr(NUM_TRAIN_SIZE,layer_num,node_num);
     double *bias = calloc(layer_num-1,sizeof(double));
@@ -104,23 +103,7 @@ int main(int argc, char ** argv) {
             }
         }
 
-        if(epoch==NUM_EPOCHS-2){
-            for(int train_index = 0;train_index<NUM_TRAIN_SIZE;train_index++){
-                for (int i=0;i<x_dim;i++){
-                    
-                    printf("x[%d]: %f ", i, x[train_index][i]);
-                    if(i==x_dim-1){
-                        printf(":::\n");
-                    }
-                }
 
-                for(int i = 0;i<node_num[layer_num-1];i++){
-                    printf( "train_index: %d, f - y: %f, y: %f, f: %f\n",train_index,f_w_x[train_index][layer_num-2][i] - y[train_index],
-                    y[train_index],
-                    f_w_x[train_index][layer_num-2][i]);
-                }
-            }
-        }
         
 
         ////////////////////////////////////////////////////////////////
@@ -186,7 +169,6 @@ int main(int argc, char ** argv) {
                     }
                 }
             }
-
         }
 
 
@@ -222,6 +204,24 @@ int main(int argc, char ** argv) {
         ////////////////////////////////////////////////////////////////
         
         printf("Epoch %d, MSE: %f\n", epoch, mean_square_error);
+
+        if(epoch==NUM_EPOCHS-1){
+            for(int train_index = 0;train_index<NUM_TRAIN_SIZE;train_index++){
+                for (int i=0;i<x_dim;i++){
+                    
+                    printf("x[%d]: %f ", i, x[train_index][i]);
+                    if(i==x_dim-1){
+                        printf(":::\n");
+                    }
+                }
+
+                for(int i = 0;i<node_num[layer_num-1];i++){
+                    printf( "train_index: %d, f - y: %f, y: %f, f: %f\n",train_index,f_w_x[train_index][layer_num-2][i] - y[train_index],
+                    y[train_index],
+                    f_w_x[train_index][layer_num-2][i]);
+                }
+            }
+        }
 
     }
 
@@ -268,7 +268,7 @@ int main(int argc, char ** argv) {
         }
 
         for(int i = 0;i<node_num[layer_num-1];i++){
-            printf( "x: %f, train_index: %d, f - y: %f, y: %f, f: %f\n",test_x[test_index][0],test_index,test_f_w_x[test_index][layer_num-2][i] - y[test_index],
+            printf( "x: %f, test_index: %d, f - y: %f, y: %f, f: %f\n",test_x[test_index][0],test_index,test_f_w_x[test_index][layer_num-2][i] - test_y[test_index],
             test_y[test_index],
             test_f_w_x[test_index][layer_num-2][i]);
         }
