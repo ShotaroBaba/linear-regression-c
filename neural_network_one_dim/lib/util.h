@@ -52,7 +52,7 @@ double * calculate_dot(double *a, double *b, int arrSize){
     int b_size=sizeof(b)/sizeof(double);
 
     if(a_size!=b_size){
-        printf("Error: The size of a and b is not the same.\n");
+        printf("Error: The sizes of two arrays are not the same.\n");
         return NULL;
     }
 

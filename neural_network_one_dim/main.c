@@ -7,10 +7,7 @@
 #define NUM_VALUES 3
 #define X_DIM 10
 #define Y_DIM 5
-#define MIN_a_RANGE 1
-#define MIN_b_RANGE 1
-#define MAX_a_RANGE 10
-#define MAX_b_RANGE 10
+#define BATCH_SIZE 100
 
 #define NUM_TRAIN_SIZE 30000
 #define NUM_TEST_SIZE 5000
