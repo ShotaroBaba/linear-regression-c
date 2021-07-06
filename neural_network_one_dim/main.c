@@ -2,9 +2,6 @@
 
 // Define default values
 #define MAX_ARR_SIZE 
-#define RAND_ERR_MIN -0.5
-#define RAND_ERR_MAX 0.5
-#define NUM_VALUES 3
 #define X_DIM 10
 #define Y_DIM 5
 #define BATCH_SIZE 100
