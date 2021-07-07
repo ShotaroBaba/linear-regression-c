@@ -4,6 +4,7 @@
 #define MAX_ARR_SIZE 
 #define X_DIM 10
 #define Y_DIM 5
+#define BATCH_SIZE 100
 
 #define NUM_TRAIN_SIZE 30000
 #define NUM_TEST_SIZE 5000
@@ -169,7 +170,28 @@ int main(int argc, char ** argv) {
         // Backward Propagation End ///////////
         ////////////////////////////////////////////////////////////////
         
+        ////////////////////////////////////////////////////////////////
+        // Stochastic Gradient Descent //////////////
+        ////////////////////////////////////////////////////////////////
+        
+        int num_batch = NUM_TRAIN_SIZE/BATCH_SIZE;
 
+        // Calculate the average of the d_err size.
+        int d_err_average = 0;
+
+        // Calculate average gradient descent
+        for (int i = 0; i<num_batch; i++) {
+            for(int j=i*BATCH_SIZE; j<BATCH_SIZE*(i+1) && j<NUM_TRAIN_SIZE; j++) {
+                
+
+            }
+        }
+
+
+
+        ////////////////////////////////////////////////////////////////
+        // Stochastic Gradient Descent End //////////////
+        ///////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////
         // Gradient Descent　//////////////
