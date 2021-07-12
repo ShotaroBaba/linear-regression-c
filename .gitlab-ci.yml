@@ -6,8 +6,11 @@ stages:
 build-job:      
   stage: build
   script:
-      # Check if a code is correctly compiled.
-      - (cd neural_network_one_dim_SGD && ./compile_run.sh)
+    # Check if a code is correctly compiled.
+    - (cd neural_network_one_dim_SGD && ./compile_run.sh)
+  variables:
+    DOCKER_DRIVER: overlay
+    DOCKER_HOST: tcp://localhost:2375/
 # unit-test-job:  
 #   stage: test    
 #   script:
