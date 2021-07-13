@@ -5,11 +5,12 @@ services:
 stages:        
   - build
 
-before_script:
-  - docker info
-
 build-job:
   stage: build
+  image: gcc:latest
   script:
-    - echo 'build success.'
-    # - (cd neural_network_one_dim_SGD && ./compile_run.sh)
+    # Check the basic function first.
+    - (cd test && ./compile_run.sh)
+    
+    # Then, check a neural network itself.
+    - (cd neural_network_one_dim_SGD && ./compile_run.sh)
