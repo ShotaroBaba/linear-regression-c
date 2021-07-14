@@ -125,6 +125,49 @@ double *** create_func_output_arr(int arrSize,int layer_num, int* node_num){
     return f_w_x_arr;
 }
 
+// Create array test
+double *** create_func_output_arr_test(int arrSize,int layer_num, double ** x, int* node_num){
+
+    // Size of outputs per training data size.
+    double *** f_w_x_arr = (double ***) calloc(arrSize, sizeof(double**)); 
+
+    // f_w_x [0]
+    
+
+    // f_w_x [n] n > 0
+    for(int i=0;i<arrSize;i++){    
+        *(f_w_x_arr+i)= (double **) calloc(layer_num, sizeof(double*));
+
+        for(int j=0;j<layer_num;j++){
+            f_w_x_arr[i][j]= (double *) calloc(node_num[j], sizeof(double));
+        }
+    }
+
+    for(int i = 0;i<arrSize;i++){
+        for(int j=0;j<node_num[0];j++){
+            f_w_x_arr[i][0][j]=x[i][j];    
+        }
+    }
+
+    return f_w_x_arr;
+}
+
+double *** create_func_output_arr_test_avg(int arrSize,int layer_num, int* node_num) {
+    // Size of outputs per training data size.
+    double *** f_w_x_arr = (double ***) calloc(arrSize, sizeof(double**)); 
+
+    for(int i=0;i<arrSize;i++){    
+        *(f_w_x_arr+i)= (double **) calloc(layer_num, sizeof(double*));
+
+        for(int j=0;j<layer_num;j++){
+            f_w_x_arr[i][j]= (double *) calloc(node_num[j], sizeof(double));
+        }
+    }
+
+     return f_w_x_arr;
+}
+
+
 // The array node_num includes the dimension of the inpu
 double *** create_random_weight(int layer_size, int* node_num){
     
@@ -142,7 +185,7 @@ double *** create_random_weight(int layer_size, int* node_num){
             // Layer i (current layer)
             w[i][j]=(double * ) calloc(node_num[i],sizeof(double));
             for(int k=0;k<node_num[i];k++){
-                w[i][j][k]=rand_double(-0.1,0.1);
+                w[i][j][k]=rand_double(-0.5,0.5);
             }
         }
     }
