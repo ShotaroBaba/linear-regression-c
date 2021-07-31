@@ -1,13 +1,32 @@
 image: docker:latest
-services:
-  - docker:dind
+# services:
+#   - docker:dind
 
 variables:
   DOCKER_HOST: tcp://docker:2375/
   DOCKER_DRIVER: overlay2
 
-stages:        
+stages:
+  - before_build
+  - omit_error
   - build
+
+before-build:
+  stage: before_build
+  image: docker:latest
+  script:
+    # Send OK to the client
+    - echo "build OK.";
+
+# Check if the error is produced properly
+# before-build-error:
+#   stage: omit_error
+#   image: docker:latest
+#   script:
+#     # Send Error to the client as a test
+#     - echo "error" 1>&2;
+#     - exit 125;
+
 
 build-job:
   stage: build
@@ -17,4 +36,5 @@ build-job:
     - (cd test && ./compile_run.sh)
     
     # Then, check a neural network itself.
-    - (cd neural_network_one_dim_SGD && ./compile_run.sh)
+    # TODO: Just allow a user to make a small test sample for linear_regression.
+    # - (cd neural_network_one_dim_SGD && ./compile_run.sh)
