@@ -19,14 +19,16 @@ before-build:
     - echo "build OK.";
 
 # Check if the error is produced properly
-# before-build-error:
-#   stage: omit_error
-#   image: docker:latest
-#   script:
-#     # Send Error to the client as a test
-#     - echo "error" 1>&2;
-#     - exit 125;
-
+# This is for the test if an error is produced.
+before-build-error:
+  stage: omit_error
+  image: docker:latest
+  script:
+    # Send Error to the client as a test
+    - echo "error" 1>&2;
+    - exit 125;
+  only: 
+    - /^error\/\d{4}_\d{2}_\d{2}$/
 
 build-job:
   stage: build
