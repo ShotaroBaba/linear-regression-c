@@ -39,4 +39,4 @@ build-job:
     
     # Then, check a neural network itself.
     # TODO: Just allow a user to make a small test sample for linear_regression.
-    # - (cd neural_network_one_dim_SGD && ./compile_run.sh)
+    - (cd test && ./compile_run_main_neural.sh)
